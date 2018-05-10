@@ -1,0 +1,18 @@
+body {
+    background-color:#f3f9fe; /*#F5F3EE*/
+    padding: 2em;
+    font-family: 'Raleway','Source Sans Pro', 'Arial';
+}
+.container {
+    width: 50%;
+    margin: 0 auto;
+    /*background-color: #7D1935;*/
+    /*color: white;*/
+}
+#hash {
+    padding:4em;
+    background-color:#fff;
+}
+#attachment {
+    font-size: 16px;
+}

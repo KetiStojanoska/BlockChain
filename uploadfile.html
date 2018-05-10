@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!--
+by Keti
+First Example
+Upload file and hash it and send it to block chain using smart contract
+-->
+<html>
+    <head>
+        <title>Upload file form</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <script src="md5.js"></script>
+    </head>
+    <body>
+        <div class="container">
+
+        <h1 style="background-color:#7D1935;color: white;text-align: center"> First Example <br> Uploading file</h1>
+
+        <form enctype="multipart/form-data" method="post">
+            <input id="attachment" type="file" />
+        </form>
+        <br>
+        HASH from file:
+        <h2 id="hash"></h2>
+    </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script>           
+            //Event Listener tied to the file input field
+            document.getElementById('attachment').addEventListener('change', eventHandler, false);
+            function eventHandler(evt){
+                var file = evt.target.files[0];
+                fileHash( file, md5, function(x){
+                    console.log( x );
+                    document.getElementById("hash").innerHTML= x;                   
+                });
+            }
+            function fileHash( file, hasher, callback ){
+		//Instantiate a reader		  
+		var reader = new FileReader();
+			  
+		//What to do when we gets data?
+		reader.onload = function( e ){
+			var hash = hasher(e.target.result);
+			callback( hash );
+		}
+			
+		reader.readAsBinaryString( file );
+
+	}
+        
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider);
+            } else {
+                // set the provider you want from Web3.providers
+                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+                //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:3000"));
+            }
+            web3.eth.defaultAccount = web3.eth.accounts[0];
+            var UploadFileContract  = web3.eth.contract([]);
+            var UploadFile = UploadFileContract.at('0xa91ae9083ab137b97fe85201d1dab5ec266d9dc2');
+            console.log(UploadFile);
+        </script>    
+    </body>
+</html>
