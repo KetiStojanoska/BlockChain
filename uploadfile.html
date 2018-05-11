@@ -11,6 +11,8 @@ Upload file and hash it and send it to block chain using smart contract
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="main.css">
         <script src="md5.js"></script>
+        <script src="./node_modules/web3/dist/web3.min.js"></script>
+
     </head>
     <body>
         <div class="container">
@@ -21,18 +23,125 @@ Upload file and hash it and send it to block chain using smart contract
             <input id="attachment" type="file" />
         </form>
         <br>
-        HASH from file:
+        <label for="hash" >HASH from file:</label>
         <h2 id="hash"></h2>
+        
+        <h2 id="error" style="color: red"></h2>
+        
     </div>
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-        <script>           
+        <script>
+            if (typeof web3 !== 'undefined') {
+                web3 = new Web3(web3.currentProvider);
+            } else {
+                // set the provider you want from Web3.providers
+                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+            }
+            web3.eth.defaultAccount = web3.eth.accounts[0];
+            var UploadFileContract  = web3.eth.contract([
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_hash",
+				"type": "string"
+			},
+			{
+				"name": "_fname",
+				"type": "string"
+			}
+		],
+		"name": "setInstructor",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_hash",
+				"type": "string"
+			}
+		],
+		"name": "setHash",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getInstructor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "getHash",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "hash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "fname",
+				"type": "string"
+			}
+		],
+		"name": "Instructor",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "hash",
+				"type": "string"
+			}
+		],
+		"name": "Hash",
+		"type": "event"
+	}
+]);
+            var UploadFile = UploadFileContract.at('0x09837701f94e5c72499194bb328382ec087e8991');
+            console.log(UploadFile);
             //Event Listener tied to the file input field
             document.getElementById('attachment').addEventListener('change', eventHandler, false);
             function eventHandler(evt){
                 var file = evt.target.files[0];
-                fileHash( file, md5, function(x){
-                    console.log( x );
-                    document.getElementById("hash").innerHTML= x;                   
+                fileHash( file, md5, function(x){                   
+                    //document.getElementById("hash").innerHTML= x;
+                    UploadFile.setHash(x);
                 });
             }
             function fileHash( file, hasher, callback ){
@@ -48,18 +157,17 @@ Upload file and hash it and send it to block chain using smart contract
 		reader.readAsBinaryString( file );
 
 	}
-        
-            if (typeof web3 !== 'undefined') {
-                web3 = new Web3(web3.currentProvider);
-            } else {
-                // set the provider you want from Web3.providers
-                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-                //web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:3000"));
+        /*Event for displaying hash from uploaded file */
+        var hashEvent = UploadFile.Hash();
+        hashEvent.watch(function (error, result){
+            if(!error){
+                $("#hash").html(result.args.hash);
+            }else
+            {
+                consol.log(error);
             }
-            web3.eth.defaultAccount = web3.eth.accounts[0];
-            var UploadFileContract  = web3.eth.contract([]);
-            var UploadFile = UploadFileContract.at('0xa91ae9083ab137b97fe85201d1dab5ec266d9dc2');
-            console.log(UploadFile);
+        });
+
         </script>    
     </body>
 </html>
